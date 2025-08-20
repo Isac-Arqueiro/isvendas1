@@ -326,16 +326,26 @@
 
     document.getElementById('cameraBtn').addEventListener('click', abrirCamera);
     function abrirCamera() {
-      const deviceId = document.getElementById('cameraSelect').value;
-      if (currentStream) currentStream.getTracks().forEach(t => t.stop());
-      navigator.mediaDevices.getUserMedia({video: {deviceId: deviceId ? {exact: deviceId} : undefined}})
-        .then(stream => {
-          currentStream = stream;
-          video.srcObject = stream;
-          videoModal.style.display = 'flex';
-        })
-        .catch(() => alert('Erro ao acessar a câmera'));
-    }
+  const deviceId = document.getElementById('cameraSelect').value;
+
+  // Se estiver vazio ou sem permissões, usa traseira como padrão
+  const constraints = deviceId
+    ? { video: { deviceId: { exact: deviceId } } }
+    : { video: { facingMode: "environment" } }; // Tenta traseira
+
+  if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+      currentStream = stream;
+      video.srcObject = stream;
+      videoModal.style.display = 'flex';
+    })
+    .catch(err => {
+      console.error("Erro ao acessar câmera:", err);
+      alert("Erro ao acessar a câmera: " + err.message);
+    });
+}
 
     document.getElementById('captureBtn').addEventListener('click', () => {
       const canvas = document.createElement('canvas');
@@ -531,5 +541,6 @@
     }
   </script>
 </body>
+
 
 </html>
