@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IS App</title>
+    <link rel="icon" href="https://i.imgur.com/groVquK.jpeg" type="image/png">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/groVquK.jpeg">
+    <meta name="theme-color" content="#1e90ff">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      /* ...seu CSS... */
+    </style>
+  </head>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IS App</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    /* === CSS ORIGINAL === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #4b6cb7, #182848);
+      color: white;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    img.logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid white;
+      margin-bottom: 1rem;
+    }
+
+    h1[contenteditable] {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    input,
+    textarea,
+    button,
+    select {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      background-color: #1e90ff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0057b7;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    #videoModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    #videoModal video {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    #captureBtn {
+      margin-top: 10px;
+      background-color: white;
+      border: none;
+      padding: 8px 15px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #modalHistorico {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      overflow: auto;
+      z-index: 10000;
+      padding: 20px;
+    }
+
+    #modalHistorico .close-btn {
+      float: right;
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    #resultadoBusca img {
+      width: 100px;
+      margin-top: 5px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN -->
+  <div id="loginPage" class="container">
+    <img id="logo" class="logo" src="https://i.imgur.com/groVquK.jpeg" alt="Logo">
+    <input type="file" id="logoUploader" accept="image/*" hidden>
+    <h1 id="appTitle" contenteditable="true">IS App</h1>
+    <input type="text" id="username" placeholder="Nome de usuário" />
+    <input type="password" id="password" placeholder="Senha" />
+    <button id="loginBtn">Entrar</button>
+  </div>
+
+  <!-- VENDAS -->
+  <div id="vendasPage" class="container hidden">
+    <div class="top-bar">
+
+      <div class="top-bar">
+        <strong>Atendimento ao Cliente</strong>
+        <div style="display: flex; gap: 10px;">
+          <button onclick="voltarLogin()">Sair</button>
+        </div>
+      </div>
+
+    </div>
+    <input type="text" id="nome" placeholder="Nome do Cliente" />
+    <input type="text" id="produto" placeholder="Produto" />
+    <input type="number" id="entrada" placeholder="Valor Entrada (R$)" />
+    <input type="number" id="fiado" placeholder="Valor Fiado (R$)" />
+    <textarea id="obs" rows="3" placeholder="Observações"></textarea>
+    <select id="cameraSelect"></select>
+    <button id="cameraBtn">📷 Tirar Foto</button>
+    <small id="fotoStatus">Nenhuma foto capturada</small>
+    <button id="saveBtn">Salvar Cliente</button>
+    <hr style="margin:20px 0; border:1px solid #ffffff33;">
+    <div class="top-bar"><strong>🔍 Buscar Cliente</strong></div>
+    <input type="text" id="buscarNome" placeholder="Digite o nome do cliente" />
+    <button onclick="buscarCliente()">Buscar</button>
+    <div id="resultadoBusca" style="margin-top:20px;"></div>
+    <button id="btnFecharBusca" onclick="fecharBusca()" style="display:none; background-color:crimson;">🔙
+      Voltar</button>
+    <button onclick="abrirHistorico()">📜 Histórico</button>
+
+  </div>
+
+  <!-- MODAIS -->
+  <div id="videoModal">
+    <div>
+      <video id="video" autoplay></video><br />
+      <button id="captureBtn">Capturar</button>
+    </div>
+  </div>
+
+  <div id="modalHistorico">
+    <button class="close-btn" onclick="fecharHistorico()">✖</button>
+    <h2>Histórico de Vendas</h2>
+    <label>Cliente:</label><br />
+    <input type="text" id="filtroClienteHistorico" placeholder="Nome do cliente"
+      style="width:80%; margin-bottom:10px;" /><br />
+    <label>Data Início:</label>
+    <input type="date" id="dataInicio" />
+    <label>Data Fim:</label>
+    <input type="date" id="dataFim" />
+    <button onclick="filtrarHistorico()">Filtrar</button>
+    <div id="listaHistorico"
+      style="margin-top:20px; max-height:60vh; overflow-y:auto; background:#222; padding:10px; border-radius:8px;">
+    </div>
+    <div style="margin-top:15px;">
+      <button onclick="baixarPDF()">Baixar PDF</button>
+      <button onclick="compartilharHistorico()">Compartilhar</button>
+    </div>
+  </div>
+
+  <script>
+    const validPasswords = ['0000', '0001', '0002', '0003'];
+    const dbName = 'vendaAppDB';
+    let db, fotoClienteBase64 = null, currentStream = null;
+
+    const loginPage = document.getElementById('loginPage');
+    const vendasPage = document.getElementById('vendasPage');
+    const videoModal = document.getElementById('videoModal');
+    const video = document.getElementById('video');
+    const clientPhotoStatus = document.getElementById('fotoStatus');
+
+    if (!window.indexedDB) {
+      alert("Este navegador não suporta IndexedDB. Use um navegador mais moderno.");
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initDB();
+    });
+
+    function initDB() {
+      const req = indexedDB.open(dbName, 2);
+      req.onerror = () => alert('Erro ao abrir DB');
+      req.onsuccess = e => {
+        db = e.target.result;
+        listarCameras();
+        carregarConfiguracoes();
+      };
+      req.onupgradeneeded = e => {
+        db = e.target.result;
+        if (!db.objectStoreNames.contains('config'))
+          db.createObjectStore('config', {keyPath: 'key'});
+        if (!db.objectStoreNames.contains('clientes'))
+          db.createObjectStore('clientes', {keyPath: 'id', autoIncrement: true});
+      };
+    }
+
+    function listarCameras() {
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        const videoDevices = devices.filter(d => d.kind === "videoinput");
+        const select = document.getElementById('cameraSelect');
+        select.innerHTML = "";
+        videoDevices.forEach((d, i) => {
+          const option = document.createElement('option');
+          option.value = d.deviceId;
+          option.text = d.label || `Câmera ${i + 1}`;
+          select.appendChild(option);
+        });
+      });
+    }
+
+    document.getElementById('logo').onclick = () => document.getElementById('logoUploader').click();
+    document.getElementById('logoUploader').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        document.getElementById('logo').src = dataUrl;
+        const tx = db.transaction('config', 'readwrite');
+        tx.objectStore('config').put({key: 'logo', value: dataUrl});
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function carregarConfiguracoes() {
+      const tx = db.transaction('config', 'readonly');
+      const store = tx.objectStore('config');
+      store.get('logo').onsuccess = e => {
+        if (e.target.result) document.getElementById('logo').src = e.target.result.value;
+      };
+      store.get('titulo').onsuccess = e => {
+        if (e.target.result) document.getElementById('appTitle').innerText = e.target.result.value;
+      };
+    }
+
+    document.getElementById('appTitle').addEventListener('blur', e => {
+      const novoTitulo = e.target.innerText.trim();
+      db.transaction('config', 'readwrite').objectStore('config').put({key: 'titulo', value: novoTitulo});
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value.trim();
+      if (user && validPasswords.includes(pass)) {
+        loginPage.classList.add('hidden');
+        vendasPage.classList.remove('hidden');
+      } else alert('Usuário ou senha inválidos');
+    });
+
+    function voltarLogin() {
+      vendasPage.classList.add('hidden');
+      loginPage.classList.remove('hidden');
+      limparCampos();
+    }
+
+    document.getElementById('cameraBtn').addEventListener('click', abrirCamera);
+    function abrirCamera() {
+      const deviceId = document.getElementById('cameraSelect').value;
+      if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+      navigator.mediaDevices.getUserMedia({video: {deviceId: deviceId ? {exact: deviceId} : undefined}})
+        .then(stream => {
+          currentStream = stream;
+          video.srcObject = stream;
+          videoModal.style.display = 'flex';
+        })
+        .catch(() => alert('Erro ao acessar a câmera'));
+    }
+
+    document.getElementById('captureBtn').addEventListener('click', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      fotoClienteBase64 = canvas.toDataURL('image/png');
+      clientPhotoStatus.innerText = 'Foto capturada!';
+      videoModal.style.display = 'none';
+      if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+    });
+
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const nome = document.getElementById('nome').value.trim();
+      if (!nome) return alert('Preencha o nome do cliente.');
+
+      const cliente = {
+        nome,
+        produto: document.getElementById('produto').value.trim(),
+        entrada: parseFloat(document.getElementById('entrada').value) || 0,
+        fiado: parseFloat(document.getElementById('fiado').value) || 0,
+        obs: document.getElementById('obs').value.trim(),
+        foto: fotoClienteBase64,
+        data: new Date().toISOString()
+      };
+      db.transaction('clientes', 'readwrite').objectStore('clientes').add(cliente).onsuccess = () => {
+        alert('Cliente salvo com sucesso!');
+        limparCampos();
+      };
+    });
+
+    function limparCampos() {
+      ['nome', 'produto', 'entrada', 'fiado', 'obs', 'buscarNome'].forEach(id => document.getElementById(id).value = '');
+      fotoClienteBase64 = null;
+      clientPhotoStatus.innerText = 'Nenhuma foto capturada';
+      document.getElementById('resultadoBusca').innerHTML = '';
+      document.getElementById('btnFecharBusca').style.display = 'none';
+    }
+
+    function buscarCliente() {
+      const busca = document.getElementById('buscarNome').value.trim().toLowerCase();
+      if (!busca) return alert('Digite o nome para buscar.');
+      const resultados = [];
+      db.transaction('clientes', 'readonly').objectStore('clientes').openCursor().onsuccess = e => {
+        const cursor = e.target.result;
+        if (cursor) {
+          if (cursor.value.nome.toLowerCase().includes(busca)) resultados.push(cursor.value);
+          cursor.continue();
+        } else mostrarResultadosBusca(resultados);
+      };
+    }
+
+    function mostrarResultadosBusca(clientes) {
+      const container = document.getElementById('resultadoBusca');
+      if (!clientes.length) {
+        container.innerHTML = '<p>Nenhum cliente encontrado.</p>';
+        return;
+      }
+
+      container.innerHTML = clientes.map(c => `
+        <div style="border:1px solid #fff; padding:10px; margin-bottom:10px; border-radius:8px; text-align:left;">
+          <strong>${c.nome}</strong><br/>
+          Produto: ${c.produto || '-'}<br/>
+          Entrada: R$ ${c.entrada.toFixed(2)}<br/>
+          Fiado: R$ ${c.fiado.toFixed(2)}<br/>
+          Obs: ${c.obs || '-'}<br/>
+          Data: ${new Date(c.data).toLocaleString()}<br/>
+          ${c.foto ? `<img src="${c.foto}" alt="Foto">` : ''}
+          <div style="margin-top:10px;">
+            <button onclick="editarCliente(${c.id})">✏️ Editar</button>
+            <button onclick="apagarCliente(${c.id})" style="background-color:crimson;">🗑️ Apagar</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('btnFecharBusca').style.display = 'inline-block';
+    }
+    function editarCliente(id) {
+      const tx = db.transaction('clientes', 'readonly');
+      const store = tx.objectStore('clientes');
+      store.get(id).onsuccess = e => {
+        const c = e.target.result;
+        if (!c) return alert('Cliente não encontrado.');
+
+        // Preenche os campos
+        document.getElementById('nome').value = c.nome;
+        document.getElementById('produto').value = c.produto;
+        document.getElementById('entrada').value = c.entrada;
+        document.getElementById('fiado').value = c.fiado;
+        document.getElementById('obs').value = c.obs;
+        fotoClienteBase64 = c.foto || null;
+        document.getElementById('fotoStatus').innerText = fotoClienteBase64 ? 'Foto carregada do registro' : 'Nenhuma foto capturada';
+
+        // Deleta o antigo para evitar duplicidade
+        apagarCliente(id, false); // false = não pedir confirmação
+        window.scrollTo({top: 0, behavior: 'smooth'});
+      };
+    }
+    function apagarCliente(id, confirmar = true) {
+      if (confirmar && !confirm('Tem certeza que deseja apagar este cliente?')) return;
+
+      const tx = db.transaction('clientes', 'readwrite');
+      const store = tx.objectStore('clientes');
+      store.delete(id).onsuccess = () => {
+        alert('Cliente apagado com sucesso!');
+        buscarCliente(); // atualiza lista
+      };
+    }
+
+
+    function fecharBusca() {
+      limparCampos();
+    }
+
+    function abrirHistorico() {
+      document.getElementById('modalHistorico').style.display = 'block';
+      filtrarHistorico();
+    }
+
+    function fecharHistorico() {
+      document.getElementById('modalHistorico').style.display = 'none';
+      document.getElementById('listaHistorico').innerHTML = '';
+      ['filtroClienteHistorico', 'dataInicio', 'dataFim'].forEach(id => document.getElementById(id).value = '');
+    }
+
+    function filtrarHistorico() {
+      const filtros = {
+        nome: document.getElementById('filtroClienteHistorico').value.trim(),
+        dataInicio: document.getElementById('dataInicio').value,
+        dataFim: document.getElementById('dataFim').value
+      };
+      carregarHistorico(filtros);
+    }
+
+    function carregarHistorico({nome, dataInicio, dataFim} = {}) {
+      const container = document.getElementById('listaHistorico');
+      container.innerHTML = 'Carregando...';
+      const todos = [];
+      db.transaction('clientes', 'readonly').objectStore('clientes').openCursor().onsuccess = e => {
+        const cursor = e.target.result;
+        if (cursor) {
+          todos.push(cursor.value);
+          cursor.continue();
+        } else {
+          let items = todos;
+          if (nome) items = items.filter(i => i.nome.toLowerCase().includes(nome.toLowerCase()));
+          if (dataInicio) items = items.filter(i => new Date(i.data) >= new Date(dataInicio));
+          if (dataFim) items = items.filter(i => new Date(i.data) <= new Date(dataFim));
+          if (!items.length) return container.innerHTML = '<p>Nenhum registro encontrado.</p>';
+          container.innerHTML = items.map(c => `
+            <div style="border-bottom:1px solid #444; padding:8px;">
+              <strong>${c.nome}</strong> - ${new Date(c.data).toLocaleString()}<br/>
+              Produto: ${c.produto || '-'} | Entrada: R$ ${c.entrada.toFixed(2)} | Fiado: R$ ${c.fiado.toFixed(2)}<br/>
+              Obs: ${c.obs || '-'}
+            </div>
+          `).join('');
+        }
+      };
+    }
+    async function baixarPDF() {
+      const {jsPDF} = window.jspdf;
+      const doc = new jsPDF();
+      const lista = document.getElementById('listaHistorico').innerText.trim();
+
+      if (!lista) {
+        alert('Nenhum dado para gerar PDF.');
+        return;
+      }
+
+      doc.setFontSize(18);
+      doc.text('Histórico de Vendas', 10, 20);
+
+      doc.setFontSize(12);
+      let y = 30;
+      lista.split('\n').filter(line => line.trim()).forEach(line => {
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(line, 10, y);
+        y += 8;
+      });
+
+      doc.save('historico_vendas.pdf');
+    }
+
+    function compartilharHistorico() {
+      const texto = document.getElementById('listaHistorico').innerText.trim();
+      if (!texto) return alert('Nenhum dado para compartilhar.');
+      if (navigator.share) {
+        navigator.share({title: 'Histórico de Vendas', text: texto}).catch(() => alert('Erro ao compartilhar'));
+      } else alert('Compartilhamento não suportado. Copie manualmente:\n\n' + texto);
+    }
+  </script>
+</body>
+
+</html>
