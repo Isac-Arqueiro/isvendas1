@@ -2,20 +2,15 @@
 <html lang="pt-BR">
 
 <head>
- <!-- Manifesto PWA -->
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="https://i.imgur.com/9uSZiXD.png" sizes="192x192">
-<link rel="apple-touch-icon" href="https://i.imgur.com/9uSZiXD.png">
-<meta name="theme-color" content="#1e90ff">
 
- <head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IS App</title>
     <link rel="icon" href="https://i.imgur.com/7nclxg5.png">
     <link rel="apple-touch-icon" href="https://i.imgur.com/9uSZiXD.png">
     <meta name="theme-color" content="#1e90ff">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.legacy.min.js"></script>
     <style>
       /* ...seu CSS... */
     </style>
@@ -172,6 +167,12 @@
     <input type="text" id="username" placeholder="Nome de usuário" />
     <input type="password" id="password" placeholder="Senha" />
     <button id="loginBtn">Entrar</button>
+    <a href="https://wa.me/8486222876?text=Olá,%20quero%20falar%20com%20vocês!" 
+       target="_blank" 
+       style="display: inline-block; margin-top: 15px; padding: 10px 20px; background-color: #25D366; color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+      📱 Fale conosco
+    </a>
+
   </div>
 
   <!-- VENDAS -->
@@ -186,6 +187,7 @@
       </div>
 
     </div>
+    <button onclick="voltarLogin()">Sair</button>
     <input type="text" id="nome" placeholder="Nome do Cliente" />
     <input type="text" id="produto" placeholder="Produto" />
     <input type="number" id="entrada" placeholder="Valor Entrada (R$)" />
@@ -235,7 +237,7 @@
   </div>
 
   <script>
-    const validPasswords = ['0000', '0001', '0002', '0003'];
+    const validPasswords = ['00001', '0001', '0002', '0003'];
     const dbName = 'vendaAppDB';
     let db, fotoClienteBase64 = null, currentStream = null;
 
@@ -317,11 +319,33 @@
     document.getElementById('loginBtn').addEventListener('click', () => {
       const user = document.getElementById('username').value.trim();
       const pass = document.getElementById('password').value.trim();
-      if (user && validPasswords.includes(pass)) {
-        loginPage.classList.add('hidden');
-        vendasPage.classList.remove('hidden');
-      } else alert('Usuário ou senha inválidos');
+
+      if (!user || !pass) {
+        alert('Preencha o nome de usuário e a senha.');
+        return;
+      }
+
+      // Primeiro: verifica se senha já foi salva anteriormente
+      const senhaSalva = localStorage.getItem('senhaAutorizada');
+      if (senhaSalva && senhaSalva === pass) {
+        entrarApp();
+        return;
+      }
+
+      // Se não houver senha salva, verifica contra as válidas do script
+      if (validPasswords.includes(pass)) {
+        localStorage.setItem('senhaAutorizada', pass); // Salva no cache
+        entrarApp();
+      } else {
+        alert('Usuário ou senha inválidos');
+      }
     });
+
+    function entrarApp() {
+      loginPage.classList.add('hidden');
+      vendasPage.classList.remove('hidden');
+    }
+
 
     function voltarLogin() {
       vendasPage.classList.add('hidden');
@@ -331,26 +355,26 @@
 
     document.getElementById('cameraBtn').addEventListener('click', abrirCamera);
     function abrirCamera() {
-  const deviceId = document.getElementById('cameraSelect').value;
+      const deviceId = document.getElementById('cameraSelect').value;
 
-  // Se estiver vazio ou sem permissões, usa traseira como padrão
-  const constraints = deviceId
-    ? { video: { deviceId: { exact: deviceId } } }
-    : { video: { facingMode: "environment" } }; // Tenta traseira
+      // Se estiver vazio ou sem permissões, usa traseira como padrão
+      const constraints = deviceId
+        ? {video: {deviceId: {exact: deviceId}}}
+        : {video: {facingMode: "environment"}}; // Tenta traseira
 
-  if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+      if (currentStream) currentStream.getTracks().forEach(t => t.stop());
 
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
-      currentStream = stream;
-      video.srcObject = stream;
-      videoModal.style.display = 'flex';
-    })
-    .catch(err => {
-      console.error("Erro ao acessar câmera:", err);
-      alert("Erro ao acessar a câmera: " + err.message);
-    });
-}
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(stream => {
+          currentStream = stream;
+          video.srcObject = stream;
+          videoModal.style.display = 'flex';
+        })
+        .catch(err => {
+          console.error("Erro ao acessar câmera:", err);
+          alert("Erro ao acessar a câmera: " + err.message);
+        });
+    }
 
     document.getElementById('captureBtn').addEventListener('click', () => {
       const canvas = document.createElement('canvas');
@@ -545,22 +569,6 @@
       } else alert('Compartilhamento não suportado. Copie manualmente:\n\n' + texto);
     }
   </script>
- <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('Service Worker registrado'))
-      .catch(err => console.error('Erro ao registrar SW', err));
-  }
-</script>
 </body>
 
-
 </html>
-
-
-
-
-
-
-
-
